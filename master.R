@@ -3,12 +3,20 @@
 ## **basedir must contain a subdirectory named out/, with folders 1014a/, 0509a/, csv/, EDA/
 ## GES_dir is a subdirectory of basedir
 ## infiles are paths within GES_dir for the input data
-setwd("~/Desktop/GES_Data_Challenge/codes_for_COST/")
+
+## Change these paths as needed
+outdir <- "out-aug-2018"
+basedir <- "~/Dropbox/School/Research/archive/JSM-Summer16/github-repo-JSM2016"
+GES_dir <- file.path(basedir, "GES Data Challenge")
+
+infiles <- list("1014" = "Updated data 2009 - 2015/data_final_2010_2015_reducedcols",
+                "0509" = "Updated data 2009 - 2015/data_final_2005_2009_reducedcols")
+
 library(FactoMineR)
 library(data.table)
 library(dbscan)
 library(cluster)
-library(kohonen, lib.loc = "~/Desktop/GES_Data_Challenge/codes_for_COST/lib/")
+library(kohonen, lib.loc = "lib")
 library(cclust)
 library(WeightedCluster)
 library(fmsb)
@@ -16,28 +24,19 @@ library(fmsb)
 library(magrittr)
 library(dplyr)
 
-## Colors
-cols <- c("#5884B3", ## Blue
-          "#E87B70", ## Orange
-          "#E5CF6C", ## Yellow
-          "#5BBE94") ## Green
+cols <- c("black", "gray25", "gray50", "gray75")
 
-cols_cat <- list(veh_invl = c("#85cbcf", "#3984b6", "#192574"),
-                 spd_lim = c("#85cbcf", "#3984b6", "#192574"),
-                 crit_event = c("#c6e3cb", "#83cacf", "#47aed0",
-                                "#3984b6", "#2c5a9c", "#1e3082",
-                                "#141c59"),
-                 traf_control = c("#9ed5cd", "#44a7cb", "#2e62a1", "#192574"),
-                 bus_mov = c("#dcecc9", "#aadacc", "#78c6d0",
-                             "#48b3d3", "#3e94c0", "#3474ac",
-                             "#2a5599", "#203686", "#18216b",
-                             "#11174b"))
+cols_cat <- list(veh_invl = c("black", "gray25", "gray75"),
+                 spd_lim = c("black", "gray25", "gray75"),
+                 crit_event = c("black", "gray30", "gray40",
+                                "gray50", "gray70", "gray80",
+                                "gray100"),
+                 traf_control = c("black", "gray25", "gray50", "gray75"),
+                 bus_mov = c("black", "gray10", "gray20",
+                             "gray30", "gray40", "gray50",
+                             "gray60", "gray70", "gray80",
+                             "gray90"))
 
-infiles <- list("1014" = "data_final_2010_2015_reducedcols",
-                "0509" = "data_final_2005_2009_reducedcols")
-
-basedir <- "~/Desktop/GES_Data_Challenge/codes_for_COST/"
-GES_dir <- file.path(basedir)
 
 ## Run clustering
 for (use.1014 in c(TRUE, FALSE)) {
@@ -72,7 +71,7 @@ for (use.1014 in c(TRUE, FALSE)) {
     myclust <- cclust(som_model$codes, 4, method='neuralgas')
     clusters <- myclust$cluster
 
-    ## get clusters for each data point
+    ## get clpusters for each data point
     neurons2cluster <- data.frame(neuron=1:400, cluster_no=clusters)
     obs2neuron <- data.frame(obs_no=1:nrow(df), neuron=som_model$unit.classif)
     obs2cluster <- left_join(obs2neuron, neurons2cluster)
@@ -82,9 +81,9 @@ for (use.1014 in c(TRUE, FALSE)) {
     df$cluster <- factor(df$cluster)
 
     if (use.1014) {
-        save(df, file = paste0("out/clusters_1014_noreorder.Rdata"))
+        save(df, file = paste0(file.path(outdir, "clusters_1014_noreorder.Rdata")))
     } else {
-        save(df, file = paste0("out/clusters_0509.Rdata"))
+        save(df, file = paste0(file.path(outdir, "clusters_0509.Rdata")))
     }
 
 }
@@ -96,7 +95,8 @@ for (use.1014 in c(TRUE, FALSE)) {
     if (use.1014) {
         new_order <- c(4, 2, 1, 3)
         ## new_order <- 1:4
-        load(file.path(basedir, "out/clusters_1014_noreorder.Rdata"))
+        load(file.path(basedir, outdir, "clusters_1014_noreorder.Rdata"))
+        ## df$cluster <- c(3, 2, 4, 1)[as.numeric(df$cluster)] %>% as.factor
         df <-
             df %>%
             filter(bus_mov != 4) %>%
@@ -104,7 +104,7 @@ for (use.1014 in c(TRUE, FALSE)) {
         infix <- "1014a"
     } else {
         new_order <- 1:4
-        load(file.path(basedir, "out/clusters_0509.Rdata"))
+        load(file.path(basedir, outdir, "clusters_0509.Rdata"))
         infix <- "0509a"
     }
 
@@ -164,14 +164,7 @@ for (use.1014 in c(TRUE, FALSE)) {
                                      c("One", "Two", "Three or more"))
     var_lookup[["spd_lim"]] <- list("Speed limit",
                                     c("<35mph", "35mph-55mph", ">55mph"))
-    # var_lookup[["crit_event"]] <-
-    #     list("Critical event that made crash imminent",
-    #          c("Loss of control",
-    #            "Vehicle turning",
-    #            "In another vehicle's lane",
-    #            "Encroaching in another vehicle's lane",
-    #            "Other vehicle encroaching into lane",
-    #            "Non-motorist", "Object or animal"))
+
     var_lookup[["crit_event"]] <-
       list("Critical event that made crash imminent",
            c("Loss of control",
@@ -187,12 +180,7 @@ for (use.1014 in c(TRUE, FALSE)) {
              c("Parking", "Going straight", "Stopping", "Decelerating",
                "Turning right", "Turning left", "Overtaking", "Reversing",
                "Negotiating a curve", "Other"))
-    # var_lookup[["bus_mov"]] <-
-    #   list("Bus movement prior to accident",
-    #        c("Parking", "Going straight", "Stopping", "Accelerating", "Decelerating",
-    #          "Turning right", "Turning left", "Overtaking", "Reversing",
-    #          "Negotiating a curve", "Other"))
-    
+
     var_lookup[["sch_bus"]] <- c("School bus")
     var_lookup[["nonm_invl"]] <- c("Non-motorists involved")
     var_lookup[["intersection"]] <- c("Located at intersection")
@@ -210,8 +198,6 @@ for (use.1014 in c(TRUE, FALSE)) {
 
     nonbinary <- c("veh_invl", "spd_lim", "crit_event",
                    "traf_control", "bus_mov")
-    ## binary <- names(weighted)
-    ## binary <- binary[!binary %in% nonbinary]
 
     binary <-
         c("nonm_invl", "sch_bus", "intersection", "single_lane",
@@ -226,12 +212,22 @@ for (use.1014 in c(TRUE, FALSE)) {
         tmp <-
             weighted[[b]] %>%
             filter_(paste0(b, " == 1"))
+        if (!all(levels(df$cluster) %in% tmp$cluster)) {
+            new_k <- levels(df$cluster)[!levels(df$cluster) %in% tmp$cluster]
+            newdf <- data.frame(X1 = factor(1, levels = c(0, 1)),
+                                cluster = factor(new_k, levels = levels(df$cluster)),
+                                perc = 0)
+            names(newdf)[1] <- b
+            tmp <- bind_rows(tmp, newdf)
+            names(tmp)[1] <- b
+        }
+        tmp <- tmp %>% arrange(cluster)
         tmp$cluster <- as.character(tmp$cluster)
         tmp[[b]] <- as.character(tmp[[b]])
 
         for (i in 1:4) {
             if ((tmp %>% filter(cluster == i)  %>% nrow) == 0) {
-                r <- data.frame("1", cluster = as.character(i), perc = 0)
+                r <- data.frame("1", cluster = as.character(i), perc = 0, stringsAsFactors = FALSE)
 
                 names(r)[1] <- b
 
@@ -249,8 +245,8 @@ for (use.1014 in c(TRUE, FALSE)) {
     bin_props <- bin_props[,new_order]
 
     ylim.01 <- TRUE
-    fnplot <- paste0("out/", infix, "/binary_proportions.png")
-    if (ylim.01) fnplot <- paste0("out/", infix, "/binary_proportions_scaled.png")
+    fnplot <- file.path(outdir, infix, "binary_proportions.png")
+    if (ylim.01) fnplot <- file.path(outdir, infix, "binary_proportions_scaled.png")
 
     png(file.path(basedir, fnplot), width = 400, 1400)
     par(mar = c(5, 4, 4, 4)+.1, mfrow = c(7, 2))
@@ -264,11 +260,13 @@ for (use.1014 in c(TRUE, FALSE)) {
         if (ylim.01) {
             barplot(bin_props[b,], main = var_lookup[[b]],
                     ## barplot(bin_props[b,], main = var_lookup[[b]],
+                    cex.main = 1.5,
                     names.arg = xlabs,
                     col = cols, ylim = c(0,1), axes = ax)
         } else {
             barplot(bin_props[b,], main = var_lookup[[b]],
                     ## barplot(bin_props[b,], main = var_lookup[[b]],
+                    cex.main = 1.5,
                     names.arg = xlabs,
                     col = cols, axes = TRUE)
         }
@@ -302,8 +300,9 @@ for (use.1014 in c(TRUE, FALSE)) {
     }
 
     for (b in nonbinary) {
-        png(sprintf("%s/out/%s/%s.png", basedir, infix, b),
+        png(file.path(basedir,outdir, infix, sprintf("%s.png", b)),
             width = 10, height = 10, units = "in", res = 300)
+        par(cex.main=1.2)
 
         mosaicplot(cont_tabs[[b]], main = var_lookup[[b]][[1]], las = 1,
                    ## mosaicplot(cont_tabs[[b]], main = var_lookup[[b]][[1]], las = 1,
@@ -313,17 +312,17 @@ for (use.1014 in c(TRUE, FALSE)) {
     }
 
     save(bin_props, cont_tabs, weighted, weighted_raw,
-         file = sprintf("%s/out/%s/plot_vals.Rdata", basedir, infix))
-    save(df, file = sprintf("%s/out/%s/df.Rdata", basedir, infix))
-    save(var_lookup, file = file.path(basedir, "out/var_lookup.Rdata"))
+         file = file.path(basedir, outdir, infix, "plot_vals.Rdata"))
+    save(df, file = file.path(basedir, outdir, infix, "df.Rdata"))
+    save(var_lookup, file = file.path(basedir, outdir, "var_lookup.Rdata"))
 
 }
 
 ## Save CSV values
 
-load(file.path(basedir, "out/var_lookup.Rdata"))
+load(file.path(basedir, outdir, "var_lookup.Rdata"))
 
-load(file.path(basedir, "out/0509a/plot_vals.Rdata"))
+load(file.path(basedir, outdir, "0509a/plot_vals.Rdata"))
 
 rownames(bin_props) <-
     rownames(bin_props) %>%
@@ -331,7 +330,7 @@ rownames(bin_props) <-
     lapply(function(x) x[[1]]) %>%
     unlist
 
-write.csv(bin_props, paste0(basedir, "/out/csv/0509-props.csv"))
+write.csv(bin_props, file.path(basedir, outdir, "csv/0509-props.csv"))
 
 cont_tabs <- lapply(cont_tabs, function(x) x %>% prop.table(1))
 
@@ -342,10 +341,10 @@ names(cont_tabs) <-
     unlist
 
 for (v in names(cont_tabs)) {
-    write.csv(cont_tabs[[v]], paste0(basedir, "/out/csv/0509-", v, ".csv"))
+    write.csv(cont_tabs[[v]], file.path(basedir, outdir, paste0("csv/0509-", v, ".csv")))
 }
 
-load(file.path(basedir, "out/1014a/plot_vals.Rdata"))
+load(file.path(basedir, outdir, "1014a/plot_vals.Rdata"))
 
 rownames(bin_props) <-
     rownames(bin_props) %>%
@@ -353,7 +352,7 @@ rownames(bin_props) <-
     lapply(function(x) x[[1]]) %>%
     unlist
 
-write.csv(bin_props, paste0(basedir, "/out/csv/1014-props.csv"))
+write.csv(bin_props, file.path(basedir, outdir, "csv/1014-props.csv"))
 
 cont_tabs <- lapply(cont_tabs, function(x) x %>% prop.table(1))
 
@@ -364,20 +363,17 @@ names(cont_tabs) <-
     unlist
 
 for (v in names(cont_tabs)) {
-    write.csv(cont_tabs[[v]], paste0(basedir, "/out/csv/1014-", v, ".csv"))
+    write.csv(cont_tabs[[v]], file.path(basedir, outdir, paste0("csv/1014-", v, ".csv")))
 }
 
 ## Plots
 
-## basedir <- "~/Dropbox/School/misc/jsm"
-## GESdir <- file.path(basedir, "GES Data Challenge")
+load(file.path(basedir, outdir, "var_lookup.Rdata"))
 
-load(file.path(basedir, "out/var_lookup.Rdata"))
-
-load(file.path(basedir, "out/1014a/df.Rdata"))
+load(file.path(basedir, outdir , "1014a/df.Rdata"))
 df14 <- df
 
-load(file.path(basedir, "out/0509a/df.Rdata"))
+load(file.path(basedir, outdir, "0509a/df.Rdata"))
 df09 <- df
 
 rm(df)
@@ -420,10 +416,10 @@ colnames(bin_props) <- rep(c("No", "Yes"), 2)
 
 years <- c("2005--2009", "2010--2015")
 
-fnplot <- "out/EDA/props.png"
+fnplot <- file.path(outdir, "EDA/props.png")
 png(file.path(basedir, fnplot),
     width = 10, height = 10, units = "in", res = 300)
-par(mar = c(3, 2, 2, 2)+.1, mfrow = c(4, 4))
+par(mar = c(3, 2, 2, 2)+.1, mfrow = c(4, 4), cex.main=1.2)
 for (i in 1:nbin) {
     bn <- var_lookup[[binary[i]]]
     bp <-
@@ -432,7 +428,8 @@ for (i in 1:nbin) {
         t
     rownames(bp) <- years
     colnames(bp) <- c("No", "Yes")
-    mosaicplot(bp, main = bn, col = c("#3984b6", "#85cbcf"))
+    ## mosaicplot(bp, main = bn, col = c("#3984b6", "#85cbcf"))
+    mosaicplot(bp, main = bn, col = c("black", "gray75"))
 }
 dev.off()
 
@@ -440,16 +437,16 @@ w14$bus_mov <- w14$bus_mov %>% filter(bus_mov != 4) %>% mutate(bus_mov = factor(
 ## df14_nb <- lapply(w14[nonbinary], table)
 ## df09_nb <- lapply(w09[nonbinary], table)
 
-cols_out <- list(veh_invl = c("#85cbcf", "#3984b6", "#192574"),
-                 spd_lim = c("#85cbcf", "#3984b6", "#192574"),
-                 crit_event = c("#c6e3cb", "#83cacf", "#47aed0",
-                                "#3984b6", "#2c5a9c", "#1e3082",
-                                "#141c59"),
-                 traf_control = c("#9ed5cd", "#44a7cb", "#2e62a1", "#192574"),
-                 bus_mov = c("#dcecc9", "#aadacc", "#78c6d0",
-                             "#48b3d3", "#3e94c0", "#3474ac",
-                             "#2a5599", "#203686", "#18216b",
-                             "#11174b"))
+cols_out <- list(veh_invl = c("black", "gray25", "gray75"),
+                 spd_lim = c("black", "gray25", "gray75"),
+                 crit_event = c("black", "gray30", "gray40",
+                                "gray50", "gray70", "gray80",
+                                "gray100"),
+                 traf_control = c("black", "gray25", "gray50", "gray75"),
+                 bus_mov = c("black", "gray10", "gray20",
+                             "gray30", "gray40", "gray50",
+                             "gray60", "gray70", "gray80",
+                             "gray90"))
 
 for (nb in nonbinary) {
     vnb <- var_lookup[[nb]]
@@ -460,18 +457,20 @@ for (nb in nonbinary) {
         tmp %>%
         prop.table
 
-    png(sprintf("%s/out/EDA/%s.png", basedir, nb),
+    png(file.path(basedir, outdir, "EDA", paste0(nb, ".png")),
         width = 10, height = 10, units = "in", res = 300)
+    par(cex.main=1.2)
     mosaicplot(tmp, main = vnb[[1]], col = cols_out[[nb]],
                cex.axis = 1, las = 1)
     dev.off()
 }
 
 
-png(sprintf("%s/out/EDA/radar.png", basedir, nb),
+png(file.path(basedir, outdir, "EDA/radar.png"),
         width = 12, height = 6, units = "in", res = 300)
 par(mfrow=c(2, 3),
-    mar = c(3,2,2,2)+.1)
+    mar = c(3,2,2,2)+.1,
+    cex.main=1.2)
 for (nb in nonbinary) {
     vnb <- var_lookup[[nb]]
     tmp <- rbind(w09[[nb]]$n, w14[[nb]]$n)
@@ -480,7 +479,7 @@ for (nb in nonbinary) {
     tmp <-
         tmp %>%
         prop.table
-
+##
     k <- ncol(tmp)
     pmax <- ifelse(max(tmp) < .25, .25, .5)
     maxmin <- rbind(rep(pmax, k), rep(0, k))
@@ -488,23 +487,24 @@ for (nb in nonbinary) {
     tmp <- as.data.frame(tmp)
     rownames(tmp)[1] <- "Max"
     rownames(tmp)[2] <- "Min"
-
+##
     if (nb == "crit_event") tmp <- tmp[,c(4,5,1,2,3,6,7)]
-
-    radarchart(tmp, title = vnb[[1]], pcol = c("red", "blue"),
+##
+    radarchart(tmp, title = vnb[[1]], pcol = "black",
+               pty=c(16,15),
                cglcol = "black")
 }
 plot(1, type="n", axes=FALSE, xlab="", ylab="")
-legend(1, 1, legend = years, col= c("red", "blue"),
+legend(1, 1, legend = years, col = "black",
+               pch=c(16,15),
        lwd=2, cex=1, xjust=0.5, yjust=0.5, bty = "n")
 dev.off()
 
-source("colors.R")
-
-png(sprintf("%s/out/EDA/radar-bar.png", basedir, nb),
+png(file.path(basedir, outdir, "EDA/radar-bar.png"),
         width = 12, height = 6, units = "in", res = 300)
 par(mfrow=c(2, 3),
-    mar = c(3,8,2,2)+.1)
+    mar = c(3,8,2,2)+.1,
+    cex.main=1.2)
 for (nb in nonbinary) {
     vnb <- var_lookup[[nb]]
     tmp <- rbind(w09[[nb]]$n, w14[[nb]]$n)
@@ -512,7 +512,7 @@ for (nb in nonbinary) {
     colnames(tmp) <- vnb[[2]]
     tmp <-
         tmp %>%
-        prop.table
+        prop.table(margin = 1)
     ##
     if (nb == "crit_event") {
         tmp <- tmp[,c(4,5,1,2,3,6,7)]
@@ -527,9 +527,9 @@ for (nb in nonbinary) {
     ## row of tmp is the bottom row in the barplot
     tmp <- tmp[c(2,1),]
     barplot(tmp, beside = TRUE, cex.names = cex,
-            main = vnb[[1]], col = c(cols_all["Blue1"], cols_all["Red1"]), las = 1, horiz = TRUE)
+            main = vnb[[1]], col = c("gray25", "gray75"), las = 1, horiz = TRUE)
 }
 plot(1, type="n", axes=FALSE, xlab="", ylab="")
-legend(1, 1, legend = years, fill = c(cols_all["Red1"], cols_all["Blue1"]),
+legend(1, 1, legend = years, fill = c("gray25", "gray75"),
        cex=1, xjust=0.5, yjust=0.5, bty = "n")
 dev.off()
