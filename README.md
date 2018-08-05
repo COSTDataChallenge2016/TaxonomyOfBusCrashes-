@@ -24,5 +24,4 @@ install.packages("~/Downloads/kohonen_2.0.19.tar.gz", repos = NULL, type = "sour
 each of these need to be. Run this file. This will create all the required plots and tables used in the paper. 
 They will be located in `file.path(basedir, outdir)`.
 
-We are including an "out" directory in this repo, so that you can compare your outputs with ours. Be sure
-to change `outdir` in *master.R* if you don't want to overwrite our outputs! 
+In the repo, you can find an "intermediate" directory that contains our intermediate output (steps 3 to 6), and an "out" directory that contains the figures and tables from the paper (step 8), so that you can compare your outputs with ours. 
