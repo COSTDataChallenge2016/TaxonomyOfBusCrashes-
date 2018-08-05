@@ -1,8 +1,11 @@
 ## Change these paths as needed
-outdir <- "out" 
-basedir <- "~/GES"
-repodir <- file.path(basedir, "TaxonomyOfBusCrashes-")
-GES_dir <- basedir  # Point to where infiles (see line 14) are located.
+basedir <- "~/GES"  # 
+outdir <- "out"  # Will make subdirectory "out" under basedir, containing all plots and outputs
+repodir <- file.path(basedir, "TaxonomyOfBusCrashes-")  # Point to where the repo is located
+GES_dir <- basedir  # Point to where infiles (see below) are located.
+
+infiles <- list("1014" = "data_final_2010_2015_reducedcols.RData",
+                "0509" = "data_final_2005_2009_reducedcols.RData")
 
 # Create required subdirectories for output
 dir.create(file.path(basedir, outdir))
@@ -10,9 +13,6 @@ dir.create(file.path(basedir, outdir, '1014a'))
 dir.create(file.path(basedir, outdir, '0509a'))
 dir.create(file.path(basedir, outdir, 'csv'))
 dir.create(file.path(basedir, outdir, 'EDA'))
-
-infiles <- list("1014" = "data_final_2010_2015_reducedcols.RData",
-                "0509" = "data_final_2005_2009_reducedcols.RData")
 
 library(FactoMineR)
 library(data.table)
