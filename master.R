@@ -1,22 +1,26 @@
-
-## basedir gives the directory path for the location of this code
-## **basedir must contain a subdirectory named out/, with folders 1014a/, 0509a/, csv/, EDA/
-## GES_dir is a subdirectory of basedir
-## infiles are paths within GES_dir for the input data
-
 ## Change these paths as needed
-outdir <- "out-aug-2018"
-basedir <- "~/Dropbox/School/Research/archive/JSM-Summer16/github-repo-JSM2016"
-GES_dir <- file.path(basedir, "GES Data Challenge")
+outdir <- "out" 
+basedir <- "~/GES"
+repodir <- file.path(basedir, "TaxonomyOfBusCrashes-")
+GES_dir <- basedir  # Point to where infiles (see line 14) are located.
 
-infiles <- list("1014" = "Updated data 2009 - 2015/data_final_2010_2015_reducedcols",
-                "0509" = "Updated data 2009 - 2015/data_final_2005_2009_reducedcols")
+# Create required subdirectories for output
+dir.create(file.path(basedir, outdir))
+dir.create(file.path(basedir, outdir, '1014a'))
+dir.create(file.path(basedir, outdir, '0509a'))
+dir.create(file.path(basedir, outdir, 'csv'))
+dir.create(file.path(basedir, outdir, 'EDA'))
+
+infiles <- list("1014" = "data_final_2010_2015_reducedcols.RData",
+                "0509" = "data_final_2005_2009_reducedcols.RData")
 
 library(FactoMineR)
 library(data.table)
 library(dbscan)
 library(cluster)
-library(kohonen, lib.loc = "lib")
+# Download  v2.0.19 from CRAN (https://cran.r-project.org/src/contrib/Archive/kohonen/) and install from source.
+# install.packages("~/Downloads/kohonen_2.0.19.tar.gz", repos = NULL, type = "source")
+library(kohonen)
 library(cclust)
 library(WeightedCluster)
 library(fmsb)
@@ -81,9 +85,9 @@ for (use.1014 in c(TRUE, FALSE)) {
     df$cluster <- factor(df$cluster)
 
     if (use.1014) {
-        save(df, file = paste0(file.path(outdir, "clusters_1014_noreorder.Rdata")))
+        save(df, file = file.path(basedir, outdir, "clusters_1014_noreorder.Rdata"))
     } else {
-        save(df, file = paste0(file.path(outdir, "clusters_0509.Rdata")))
+        save(df, file = file.path(basedir, outdir, "clusters_0509.Rdata"))
     }
 
 }
