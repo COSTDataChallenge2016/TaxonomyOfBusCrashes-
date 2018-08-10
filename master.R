@@ -304,14 +304,19 @@ for (use.1014 in c(TRUE, FALSE)) {
     }
 
     for (b in nonbinary) {
-        png(file.path(basedir,outdir, infix, sprintf("%s.png", b)),
+        fn <- file.path(basedir,outdir, infix, sprintf("%s.png", b))
+        if (!use.1014) {
+            fn <- gsub("\\.png", "_0509.png", fn)
+        }
+        png(fn,
             width = 10, height = 10, units = "in", res = 300)
-        par(cex.main=1.2)
+        par(cex.main=1.8)
 
-        mosaicplot(cont_tabs[[b]], main = var_lookup[[b]][[1]], las = 1,
+        ct <- cont_tabs[[b]]
+        ct <- rbind(Legend = rep(mean(rowSums(ct))/2 / ncol(ct), ncol(ct)), ct)
+        mosaicplot(ct, main = var_lookup[[b]][[1]], las = 1,
                    ## mosaicplot(cont_tabs[[b]], main = var_lookup[[b]][[1]], las = 1,
-                   color = cols_cat[[b]], cex.axis = 1)
-
+                   color = cols_cat[[b]], cex.axis = 1.5)
         dev.off()
     }
 
@@ -423,17 +428,17 @@ years <- c("2005--2009", "2010--2015")
 fnplot <- file.path(outdir, "EDA/props.png")
 png(file.path(basedir, fnplot),
     width = 10, height = 10, units = "in", res = 300)
-par(mar = c(3, 2, 2, 2)+.1, mfrow = c(4, 4), cex.main=1.2)
+par(mar = c(3, 2, 2, 2)+.1, mfrow = c(4, 4), cex.main=1.3)
 for (i in 1:nbin) {
     bn <- var_lookup[[binary[i]]]
     bp <-
         bin_props[i,] %>%
         matrix(2, 2) %>%
         t
-    rownames(bp) <- years
+    rownames(bp) <- gsub("--", "—", years)
     colnames(bp) <- c("No", "Yes")
     ## mosaicplot(bp, main = bn, col = c("#3984b6", "#85cbcf"))
-    mosaicplot(bp, main = bn, col = c("black", "gray75"))
+    mosaicplot(bp, main = bn, col = c("black", "gray75"), cex.axis = 1.1)
 }
 dev.off()
 
@@ -508,7 +513,7 @@ png(file.path(basedir, outdir, "EDA/radar-bar.png"),
         width = 12, height = 6, units = "in", res = 300)
 par(mfrow=c(2, 3),
     mar = c(3,8,2,2)+.1,
-    cex.main=1.2)
+    cex.main=1.4)
 for (nb in nonbinary) {
     vnb <- var_lookup[[nb]]
     tmp <- rbind(w09[[nb]]$n, w14[[nb]]$n)
@@ -520,9 +525,9 @@ for (nb in nonbinary) {
     ##
     if (nb == "crit_event") {
         tmp <- tmp[,c(4,5,1,2,3,6,7)]
-        cex <- .6
+        cex <- 1
     } else if (nb == "bus_mov") {
-        cex <- .8
+        cex <- 1
     } else {
         cex <- 1
     }
