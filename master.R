@@ -2,7 +2,7 @@
 basedir <- "~/GES"  # 
 outdir <- "out"  # Will make subdirectory "out" under basedir, containing all plots and outputs
 repodir <- file.path(basedir, "TaxonomyOfBusCrashes-")  # Point to where the repo is located
-GES_dir <- basedir  # Point to where infiles (see below) are located.
+GES_dir <- file.path(repodir, 'intermediate')  # Point to where infiles (see below) are located.
 
 infiles <- list("1014" = "data_final_2010_2015_reducedcols.RData",
                 "0509" = "data_final_2005_2009_reducedcols.RData")
@@ -253,7 +253,7 @@ for (use.1014 in c(TRUE, FALSE)) {
     if (ylim.01) fnplot <- file.path(outdir, infix, "binary_proportions_scaled.png")
 
     png(file.path(basedir, fnplot), width = 400, 1400)
-    par(mar = c(5, 4, 4, 4)+.1, mfrow = c(7, 2))
+    par(mar = c(3, 3, 2.5, 3)+.1, mfrow = c(7, 2))
     for (i in 1:nbin) {
         b <- binary[i]
         ## Labeling
@@ -262,18 +262,19 @@ for (use.1014 in c(TRUE, FALSE)) {
         xlabs <- 1:4
         ## Plot proportions
         if (ylim.01) {
-            barplot(bin_props[b,], main = var_lookup[[b]],
+            barplot(bin_props[b,], #main = var_lookup[[b]],
                     ## barplot(bin_props[b,], main = var_lookup[[b]],
-                    cex.main = 1.5,
+                    ## cex.main = 1.5,
                     names.arg = xlabs,
                     col = cols, ylim = c(0,1), axes = ax)
         } else {
-            barplot(bin_props[b,], main = var_lookup[[b]],
+            barplot(bin_props[b,], #main = var_lookup[[b]],
                     ## barplot(bin_props[b,], main = var_lookup[[b]],
-                    cex.main = 1.5,
+                    ## cex.main = 1.5,
                     names.arg = xlabs,
                     col = cols, axes = TRUE)
         }
+        title(main = var_lookup[[b]], line = 1.5, cex.main = 1.5)
         if (i %% 2 == 0) axis(4)
     }
     dev.off()
