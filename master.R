@@ -126,7 +126,7 @@ for (use.1014 in c(TRUE, FALSE)) {
         mutate(spd_lim =ifelse(spd_lim < 35, "slow", ifelse(spd_lim < 55, "medium", "fast"))) %>%
         mutate(spd_lim = factor(spd_lim)) %>%
         mutate(spd_lim = as.ordered(spd_lim)) %>%
-        select(-sur_dry, -profile_level, -str_align, -alc_p, -speed_p, -imp_p, -light_cond)
+        dplyr::select(-sur_dry, -profile_level, -str_align, -alc_p, -speed_p, -imp_p, -light_cond)
 
     if (!use.1014) {
         df$cluster <- factor(df$cluster)
@@ -148,13 +148,13 @@ for (use.1014 in c(TRUE, FALSE)) {
             mutate(perc = n_clust_var / n_clust)
         if (prop) {
             df %>%
-                select_(var, "cluster", "perc")
+                dplyr::select_(var, "cluster", "perc")
         } else {
             df
         }
     }
 
-    factors <- names(df %>% select(-cluster, -WEIGHT))
+    factors <- names(df %>% dplyr::select(-cluster, -WEIGHT))
     weighted <- list()
     weighted_raw <- list()
     for (v in factors) {
@@ -390,12 +390,12 @@ gc()
 
 weightvar <- function(df, v) {
     df %>%
-        select_(v, "WEIGHT") %>%
+    dplyr::select_(v, "WEIGHT") %>%
         group_by_(v) %>%
         summarize(n = sum(WEIGHT))
 }
 
-factors <- names(df09 %>% select(-cluster, -WEIGHT))
+factors <- names(df09 %>% dplyr::select(-cluster, -WEIGHT))
 w09 <- list()
 w14 <- list()
 for (v in factors) {

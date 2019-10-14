@@ -16,10 +16,6 @@ for (i in seq_along(yrs)) {
   source(paste0(base_dir, "data_", yrs[i], "_extract.R"))
 }
 
-
-# base_dir is overwritten, so reinitialize
-base_dir <- base_dir_backup
-
 source(file.path(base_dir, "combine_05_09.R"))
 source(file.path(base_dir, "combine_10_15.R"))
 source(file.path(base_dir, "combine_to_reduced_05_09.R"))
