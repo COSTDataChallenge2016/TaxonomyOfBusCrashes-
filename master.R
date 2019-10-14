@@ -1,18 +1,17 @@
 ## Change these paths as needed
-basedir <- "~/GES"  # 
-outdir <- "out"  # Will make subdirectory "out" under basedir, containing all plots and outputs
-repodir <- file.path(basedir, "TaxonomyOfBusCrashes-")  # Point to where the repo is located
-GES_dir <- file.path(repodir, 'intermediate')  # Point to where infiles (see below) are located.
+outdir <- "out"  # Will make subdirectory "out" under base_dir, containing all plots and outputs
+
+######################## Don't change anything below this line ################
 
 infiles <- list("1014" = "data_final_2010_2015_reducedcols.RData",
                 "0509" = "data_final_2005_2009_reducedcols.RData")
 
 # Create required subdirectories for output
-dir.create(file.path(basedir, outdir))
-dir.create(file.path(basedir, outdir, '1014a'))
-dir.create(file.path(basedir, outdir, '0509a'))
-dir.create(file.path(basedir, outdir, 'csv'))
-dir.create(file.path(basedir, outdir, 'EDA'))
+dir.create(file.path(base_dir, outdir))
+dir.create(file.path(base_dir, outdir, '1014a'))
+dir.create(file.path(base_dir, outdir, '0509a'))
+dir.create(file.path(base_dir, outdir, 'csv'))
+dir.create(file.path(base_dir, outdir, 'EDA'))
 
 library(FactoMineR)
 library(data.table)
@@ -47,13 +46,13 @@ for (use.1014 in c(TRUE, FALSE)) {
     ## Load data
     if (use.1014) {
         set.seed(20160918)
-        load(file.path(GES_dir, infiles[["1014"]]))
+        load(file.path(extracted_data_dir, infiles[["1014"]]))
 
         df <- df_reduced %>% tbl_df
         rm(df_reduced)
     } else {
         set.seed(20160920)
-        load(file.path(GES_dir, infiles[["0509"]]))
+        load(file.path(extracted_data_dir, infiles[["0509"]]))
 
         df <- df_test %>% tbl_df
         rm(df_test)
@@ -85,9 +84,9 @@ for (use.1014 in c(TRUE, FALSE)) {
     df$cluster <- factor(df$cluster)
 
     if (use.1014) {
-        save(df, file = file.path(basedir, outdir, "clusters_1014_noreorder.Rdata"))
+        save(df, file = file.path(base_dir, outdir, "clusters_1014_noreorder.Rdata"))
     } else {
-        save(df, file = file.path(basedir, outdir, "clusters_0509.Rdata"))
+        save(df, file = file.path(base_dir, outdir, "clusters_0509.Rdata"))
     }
 
 }
@@ -99,7 +98,7 @@ for (use.1014 in c(TRUE, FALSE)) {
     if (use.1014) {
         new_order <- c(4, 2, 1, 3)
         ## new_order <- 1:4
-        load(file.path(basedir, outdir, "clusters_1014_noreorder.Rdata"))
+        load(file.path(base_dir, outdir, "clusters_1014_noreorder.Rdata"))
         ## df$cluster <- c(3, 2, 4, 1)[as.numeric(df$cluster)] %>% as.factor
         df <-
             df %>%
@@ -108,7 +107,7 @@ for (use.1014 in c(TRUE, FALSE)) {
         infix <- "1014a"
     } else {
         new_order <- 1:4
-        load(file.path(basedir, outdir, "clusters_0509.Rdata"))
+        load(file.path(base_dir, outdir, "clusters_0509.Rdata"))
         infix <- "0509a"
     }
 
@@ -252,7 +251,7 @@ for (use.1014 in c(TRUE, FALSE)) {
     fnplot <- file.path(outdir, infix, "binary_proportions.png")
     if (ylim.01) fnplot <- file.path(outdir, infix, "binary_proportions_scaled.png")
 
-    png(file.path(basedir, fnplot), width = 400, 1400)
+    png(file.path(base_dir, fnplot), width = 400, 1400)
     par(mar = c(3, 3, 2.5, 3)+.1, mfrow = c(7, 2))
     for (i in 1:nbin) {
         b <- binary[i]
@@ -305,7 +304,7 @@ for (use.1014 in c(TRUE, FALSE)) {
     }
 
     for (b in nonbinary) {
-        fn <- file.path(basedir,outdir, infix, sprintf("%s.png", b))
+        fn <- file.path(base_dir,outdir, infix, sprintf("%s.png", b))
         if (!use.1014) {
             fn <- gsub("\\.png", "_0509.png", fn)
         }
@@ -322,17 +321,17 @@ for (use.1014 in c(TRUE, FALSE)) {
     }
 
     save(bin_props, cont_tabs, weighted, weighted_raw,
-         file = file.path(basedir, outdir, infix, "plot_vals.Rdata"))
-    save(df, file = file.path(basedir, outdir, infix, "df.Rdata"))
-    save(var_lookup, file = file.path(basedir, outdir, "var_lookup.Rdata"))
+         file = file.path(base_dir, outdir, infix, "plot_vals.Rdata"))
+    save(df, file = file.path(base_dir, outdir, infix, "df.Rdata"))
+    save(var_lookup, file = file.path(base_dir, outdir, "var_lookup.Rdata"))
 
 }
 
 ## Save CSV values
 
-load(file.path(basedir, outdir, "var_lookup.Rdata"))
+load(file.path(base_dir, outdir, "var_lookup.Rdata"))
 
-load(file.path(basedir, outdir, "0509a/plot_vals.Rdata"))
+load(file.path(base_dir, outdir, "0509a/plot_vals.Rdata"))
 
 rownames(bin_props) <-
     rownames(bin_props) %>%
@@ -340,7 +339,7 @@ rownames(bin_props) <-
     lapply(function(x) x[[1]]) %>%
     unlist
 
-write.csv(bin_props, file.path(basedir, outdir, "csv/0509-props.csv"))
+write.csv(bin_props, file.path(base_dir, outdir, "csv/0509-props.csv"))
 
 cont_tabs <- lapply(cont_tabs, function(x) x %>% prop.table(1))
 
@@ -351,10 +350,10 @@ names(cont_tabs) <-
     unlist
 
 for (v in names(cont_tabs)) {
-    write.csv(cont_tabs[[v]], file.path(basedir, outdir, paste0("csv/0509-", v, ".csv")))
+    write.csv(cont_tabs[[v]], file.path(base_dir, outdir, paste0("csv/0509-", v, ".csv")))
 }
 
-load(file.path(basedir, outdir, "1014a/plot_vals.Rdata"))
+load(file.path(base_dir, outdir, "1014a/plot_vals.Rdata"))
 
 rownames(bin_props) <-
     rownames(bin_props) %>%
@@ -362,7 +361,7 @@ rownames(bin_props) <-
     lapply(function(x) x[[1]]) %>%
     unlist
 
-write.csv(bin_props, file.path(basedir, outdir, "csv/1014-props.csv"))
+write.csv(bin_props, file.path(base_dir, outdir, "csv/1014-props.csv"))
 
 cont_tabs <- lapply(cont_tabs, function(x) x %>% prop.table(1))
 
@@ -373,17 +372,17 @@ names(cont_tabs) <-
     unlist
 
 for (v in names(cont_tabs)) {
-    write.csv(cont_tabs[[v]], file.path(basedir, outdir, paste0("csv/1014-", v, ".csv")))
+    write.csv(cont_tabs[[v]], file.path(base_dir, outdir, paste0("csv/1014-", v, ".csv")))
 }
 
 ## Plots
 
-load(file.path(basedir, outdir, "var_lookup.Rdata"))
+load(file.path(base_dir, outdir, "var_lookup.Rdata"))
 
-load(file.path(basedir, outdir , "1014a/df.Rdata"))
+load(file.path(base_dir, outdir , "1014a/df.Rdata"))
 df14 <- df
 
-load(file.path(basedir, outdir, "0509a/df.Rdata"))
+load(file.path(base_dir, outdir, "0509a/df.Rdata"))
 df09 <- df
 
 rm(df)
@@ -427,7 +426,7 @@ colnames(bin_props) <- rep(c("No", "Yes"), 2)
 years <- c("2005--2009", "2010--2015")
 
 fnplot <- file.path(outdir, "EDA/props.png")
-png(file.path(basedir, fnplot),
+png(file.path(base_dir, fnplot),
     width = 10, height = 10, units = "in", res = 300)
 par(mar = c(3, 2, 2, 2)+.1, mfrow = c(4, 4), cex.main=1.3)
 for (i in 1:nbin) {
@@ -467,7 +466,7 @@ for (nb in nonbinary) {
         tmp %>%
         prop.table
 
-    png(file.path(basedir, outdir, "EDA", paste0(nb, ".png")),
+    png(file.path(base_dir, outdir, "EDA", paste0(nb, ".png")),
         width = 10, height = 10, units = "in", res = 300)
     par(cex.main=1.2)
     mosaicplot(tmp, main = vnb[[1]], col = cols_out[[nb]],
@@ -476,7 +475,7 @@ for (nb in nonbinary) {
 }
 
 
-png(file.path(basedir, outdir, "EDA/radar.png"),
+png(file.path(base_dir, outdir, "EDA/radar.png"),
         width = 12, height = 6, units = "in", res = 300)
 par(mfrow=c(2, 3),
     mar = c(3,2,2,2)+.1,
@@ -510,7 +509,7 @@ legend(1, 1, legend = years, col = "black",
        lwd=2, cex=1, xjust=0.5, yjust=0.5, bty = "n")
 dev.off()
 
-png(file.path(basedir, outdir, "EDA/radar-bar.png"),
+png(file.path(base_dir, outdir, "EDA/radar-bar.png"),
         width = 12, height = 6, units = "in", res = 300)
 par(mfrow=c(2, 3),
     mar = c(3,8,2,2)+.1,

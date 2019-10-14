@@ -1,18 +1,16 @@
-rm(list=setdiff(ls(), c("yrs", "base_dir")))
+rm(list=setdiff(ls(), c("yrs", "base_dir", "data_base_dir", "extracted_data_dir")))
 library(dplyr)
 library(data.table)
 library(dplyr)
 
-# Change these as needed
-the_base_dir <- "~/GES/"
-outfile <- "~/GES/data_final2010_2015.RData"
+outfile <- file.path(extracted_data_dir, "data_final2010_2015.RData")
 
-load(paste0(the_base_dir, 'data10.RData'))
-load(paste0(the_base_dir, 'data11.RData'))
-load(paste0(the_base_dir, 'data12.RData'))
-load(paste0(the_base_dir, 'data13.RData'))
-load(paste0(the_base_dir, 'data14.RData'))
-load(paste0(the_base_dir, 'data15.RData'))
+load(file.path(extracted_data_dir, 'data10.RData'))
+load(file.path(extracted_data_dir, 'data11.RData'))
+load(file.path(extracted_data_dir, 'data12.RData'))
+load(file.path(extracted_data_dir, 'data13.RData'))
+load(file.path(extracted_data_dir, 'data14.RData'))
+load(file.path(extracted_data_dir, 'data15.RData'))
 
 dat10_f <- dat10 %>% rename(DRINKING = PER_ALCH,
                             VE_TOTAL = VEH_INVL,
@@ -90,6 +88,4 @@ tmp$psv_p <-  as.numeric(tmp$pick_p == 1 | tmp$van_p == 1 | tmp$suv_p == 1)
 tmp$lht_p <-  as.numeric(tmp$ltruck_p == 1 | tmp$htruck_p == 1)
 
 tmp <- tmp %>% dplyr::select(-SEX, -pick_p, -van_p, -suv_p, -ltruck_p, -htruck_p)
-
-#save(tmp,file="~/Desktop/GES_Data_Challenge/data10_15.Rda")
 save(tmp, file = outfile)

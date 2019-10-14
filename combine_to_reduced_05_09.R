@@ -1,10 +1,10 @@
-rm(list=setdiff(ls(), c("yrs", "base_dir")))
+rm(list=setdiff(ls(), c("yrs", "base_dir", "data_base_dir", "extracted_data_dir")))
 library(data.table)
 library(dplyr)
 
 # Change these as needed
-load('~/GES/data_final05_09.RData')
-outfile <- '~/GES/data_final_2005_2009_reducedcols.RData'
+load(file.path(extracted_data_dir, 'data_final05_09.RData'))
+outfile <- file.path(extracted_data_dir, 'data_final_2005_2009_reducedcols.RData')
 
 #tmp <- tmp[complete.cases(tmp)]
 

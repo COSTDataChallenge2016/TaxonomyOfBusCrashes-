@@ -1,12 +1,11 @@
-rm(list=setdiff(ls(), c("yrs", "base_dir")))
+rm(list=setdiff(ls(), c("yrs", "base_dir", "data_base_dir", "extracted_data_dir")))
 library(data.table)
 require(bit64)
 library(devtools)
 library(sas7bdat)
 library(dplyr)
 ##Year 2011############
-data_base_dir <- "~/GES/data/"
-data_out <- "~/GES/data11.RData"
+data_out <- file.path(extracted_data_dir, "data11.RData")
 
 if (!file.exists(data_out)) {
   acc_11 <- read.sas7bdat(paste0(data_base_dir, "GES11/GES11PCSAS/accident.sas7bdat"))

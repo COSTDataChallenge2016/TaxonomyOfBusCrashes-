@@ -1,16 +1,15 @@
-rm(list=setdiff(ls(), c("yrs", "base_dir")))
+rm(list=setdiff(ls(), c("yrs", "base_dir", "data_base_dir", "extracted_data_dir")))
 library(data.table)
 library(dplyr)
 
 # Change these as needed
-the_base_dir <- "~/GES/"
-outfile <- "~/GES/data_final05_09.RData"
+outfile <- file.path(extracted_data_dir, "data_final05_09.RData")
 
-load(paste0(the_base_dir, 'data05.RData'))
-load(paste0(the_base_dir, 'data06.RData'))
-load(paste0(the_base_dir, 'data07.RData'))
-load(paste0(the_base_dir, 'data08.RData'))
-load(paste0(the_base_dir, 'data09.RData'))
+load(file.path(extracted_data_dir, 'data05.RData'))
+load(file.path(extracted_data_dir, 'data06.RData'))
+load(file.path(extracted_data_dir, 'data07.RData'))
+load(file.path(extracted_data_dir, 'data08.RData'))
+load(file.path(extracted_data_dir, 'data09.RData'))
 
 dat09_f <- dat09 %>% rename(SPEED = TRAV_SP,
                             PER_TYPE = PER_TYP,

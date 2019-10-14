@@ -1,11 +1,11 @@
-rm(list=setdiff(ls(), c("yrs", "base_dir")))
+rm(list=setdiff(ls(), c("yrs", "base_dir", "data_base_dir", "extracted_data_dir")))
 #### data processing
 library(data.table)
 library(dplyr)
 
 # Change these as needed
-load('~/GES/data_final2010_2015.RData')
-outfile <- '~/GES/data_final_2010_2015_reducedcols.RData'
+load(file.path(extracted_data_dir, 'data_final2010_2015.RData'))
+outfile <- file.path(extracted_data_dir, 'data_final_2010_2015_reducedcols.RData')
 
 ## look for NAs
 sapply(tmp, function(t) sum(is.na(t)))
